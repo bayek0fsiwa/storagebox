@@ -5,24 +5,39 @@ import uvicorn
 from fastapi import FastAPI, status
 from fastapi.responses import JSONResponse
 
+from src.configs.db import create_db_and_tables
+
 from .utils.loger import LoggerSetup
 
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
-    global logger_setup_instance, logger
-    logger_setup_instance = LoggerSetup(logger_name="app")
-    logger = logging.getLogger("app")
-
+    app.state.logger_setup_instance = LoggerSetup(logger_name=__name__)
+    app.state.logger = logging.getLogger(__name__)
     logging.getLogger("uvicorn.access").propagate = False
-    logging.getLogger("uvicorn.error").propagate = False
 
-    logger.info("App starting")
+    app.state.logger.info("App starting")
+    app.state.logger.info("Initializing database and tables.")
+    try:
+        await create_db_and_tables()
+        app.state.logger.info("Database tables created successfully.")
+    except Exception:
+        app.state.logger.error(
+            "Error creating database tables. The application will not start.",
+            exc_info=True,
+        )
+        raise
     yield
-    logger.info("App shutting down. Waiting for logs to be processed...")
-    if logger_setup_instance and logger_setup_instance.listener:
-        logger_setup_instance.listener.stop()
-    logger.info("App stopped")
+    app.state.logger.info("App shutting down. Waiting for logs to be processed...")
+    logger_setup = getattr(app.state, "logger_setup_instance", None)
+    if logger_setup is not None:
+        listener = getattr(logger_setup, "listener", None)
+        if listener is not None:
+            try:
+                listener.stop()
+            except Exception:
+                app.state.logger.exception("Failed to stop logger listener cleanly.")
+    app.state.logger.info("App stopped")
 
 
 app = FastAPI(lifespan=lifespan)
@@ -30,8 +45,8 @@ app = FastAPI(lifespan=lifespan)
 
 @app.get("/", status_code=status.HTTP_200_OK)
 def health_check():
-    if logger:
-        logger.info("Health check endpoint accessed.", extra={"path": "/"})
+    logger = getattr(app.state, "logger", logging.getLogger("app"))
+    logger.info("Health check endpoint accessed.", extra={"path": "/"})
     return JSONResponse({"status": "Online"})
 
 

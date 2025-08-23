@@ -1,3 +1,4 @@
+import sys
 from typing import Annotated, AsyncGenerator
 
 from fastapi import Depends
@@ -14,21 +15,23 @@ sqlite_url = f"sqlite+aiosqlite:///{sqlite_file_name}"
 
 connect_args = {"check_same_thread": False}
 
-engine = create_async_engine(
-    sqlite_url, connect_args=connect_args, echo=True, future=True
-)
+
+try:
+    engine = create_async_engine(
+        sqlite_url, connect_args=connect_args, echo=True, future=True
+    )
+except Exception as e:
+    print(f"Error creating database engine: {e}", file=sys.stderr)
+    raise
 
 
 async def create_db_and_tables():
-    async with engine.begin() as conn:
-        await conn.run_sync(SQLModel.metadata.create_all)
-
-
-# AsyncSessionLocal = async_sessionmaker(
-#     bind=engine,
-#     class_=AsyncSession,
-#     expire_on_commit=False,
-# )
+    try:
+        async with engine.begin() as conn:
+            await conn.run_sync(SQLModel.metadata.create_all)
+    except Exception as e:
+        print(f"Error creating tables: {e}", file=sys.stderr)
+        raise
 
 
 async def get_session() -> AsyncGenerator[AsyncSession, None]:
