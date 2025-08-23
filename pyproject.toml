@@ -1,0 +1,10 @@
+[project]
+name = "storagebox"
+version = "0.1.0"
+description = "Store your personal files and access from anywhere with a simple otp."
+readme = "README.md"
+requires-python = ">=3.13"
+dependencies = [
+    "fastapi[standard]>=0.116.1",
+    "ruff>=0.12.10",
+]
