@@ -15,6 +15,6 @@ async def lifespan(app: FastAPI):
 app = FastAPI()
 
 
-@app.get("/", status_code=status.HTTP_200_OK, response_model=JSONResponse)
+@app.get("/", status_code=status.HTTP_200_OK)
 def health_check():
     return JSONResponse({"status": "Online"})
