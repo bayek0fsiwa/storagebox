@@ -17,3 +17,6 @@ logs
 
 # Envs
 .env
+
+# DB File
+storagebox.db
