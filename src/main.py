@@ -7,6 +7,7 @@ from fastapi.responses import JSONResponse
 
 from src.configs.db import create_db_and_tables
 
+from .security.auth import APIKeyDep
 from .utils.loger import LoggerSetup
 
 
@@ -44,7 +45,7 @@ app = FastAPI(lifespan=lifespan)
 
 
 @app.get("/", status_code=status.HTTP_200_OK)
-def health_check():
+def health_check(api_key: APIKeyDep):
     logger = getattr(app.state, "logger", logging.getLogger("app"))
     logger.info("Health check endpoint accessed.", extra={"path": "/"})
     return JSONResponse({"status": "Online"})
