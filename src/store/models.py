@@ -10,7 +10,7 @@ class Storagebox(SQLModel, table=True):
         nullable=False, unique=True, min_length=6, max_length=6, index=True
     )
     file_details: List[Dict[str, Any]] = Field(
-        default_factory=dict, sa_column=Column(JSON)
+        default_factory=list, sa_column=Column(JSON)
     )
     created_at: Optional[datetime] = Field(
         default=None,
