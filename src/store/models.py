@@ -1,5 +1,5 @@
 from datetime import datetime
-from typing import List, Optional
+from typing import Any, Dict, List, Optional
 
 from sqlmodel import JSON, TIMESTAMP, Column, Field, SQLModel, text
 
@@ -9,7 +9,9 @@ class Storagebox(SQLModel, table=True):
     otp: str = Field(
         nullable=False, unique=True, min_length=6, max_length=6, index=True
     )
-    file_details: dict = Field(default_factory=dict, sa_column=Column(JSON))
+    file_details: List[Dict[str, Any]] = Field(
+        default_factory=dict, sa_column=Column(JSON)
+    )
     created_at: Optional[datetime] = Field(
         default=None,
         sa_column=Column(
