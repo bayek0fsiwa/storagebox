@@ -1151,7 +1151,6 @@ dependencies = [
     { name = "pyotp" },
     { name = "python-json-logger" },
     { name = "python-multipart" },
-    { name = "ruff" },
     { name = "sqlmodel" },
 ]
 
@@ -1160,6 +1159,7 @@ dev = [
     { name = "locust" },
     { name = "pytest" },
     { name = "pytest-asyncio" },
+    { name = "ruff" },
 ]
 
 [package.metadata]
@@ -1174,7 +1174,6 @@ requires-dist = [
     { name = "pyotp", specifier = ">=2.9.0" },
     { name = "python-json-logger", specifier = ">=3.3.0" },
     { name = "python-multipart", specifier = ">=0.0.20" },
-    { name = "ruff", specifier = ">=0.12.10" },
     { name = "sqlmodel", specifier = ">=0.0.24" },
 ]
 
@@ -1183,6 +1182,7 @@ dev = [
     { name = "locust", specifier = ">=2.39.0" },
     { name = "pytest", specifier = ">=8.4.1" },
     { name = "pytest-asyncio", specifier = ">=1.1.0" },
+    { name = "ruff", specifier = ">=0.12.10" },
 ]
 
 [[package]]

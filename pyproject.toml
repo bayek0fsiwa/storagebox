@@ -15,7 +15,6 @@ dependencies = [
     "pyotp>=2.9.0",
     "python-json-logger>=3.3.0",
     "python-multipart>=0.0.20",
-    "ruff>=0.12.10",
     "sqlmodel>=0.0.24",
 ]
 
@@ -24,4 +23,5 @@ dev = [
     "locust>=2.39.0",
     "pytest>=8.4.1",
     "pytest-asyncio>=1.1.0",
+    "ruff>=0.12.10",
 ]
