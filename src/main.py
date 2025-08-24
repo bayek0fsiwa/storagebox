@@ -21,10 +21,10 @@ async def lifespan(app: FastAPI):
     app.state.logger.info("Initializing database and tables.")
     try:
         await create_db_and_tables()
-        app.state.logger.info("Database tables created successfully.")
+        app.state.logger.info("Database initialized.")
     except Exception:
         app.state.logger.error(
-            "Error creating database tables. The application will not start.",
+            "Error initializing database. The application will not start.",
             exc_info=True,
         )
         raise
