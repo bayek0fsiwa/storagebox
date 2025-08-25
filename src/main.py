@@ -3,9 +3,10 @@ from contextlib import asynccontextmanager
 
 import uvicorn
 from fastapi import FastAPI, status
-from fastapi.responses import JSONResponse
+from fastapi.responses import ORJSONResponse
 
 from src.configs.db import create_db_and_tables
+from src.store.controllers import router
 
 from .security.auth import APIKeyDep
 from .utils.loger import LoggerSetup
@@ -42,13 +43,14 @@ async def lifespan(app: FastAPI):
 
 
 app = FastAPI(lifespan=lifespan)
+app.include_router(router=router)
 
 
 @app.get("/", status_code=status.HTTP_200_OK)
 def health_check(api_key: APIKeyDep):
     logger = getattr(app.state, "logger", logging.getLogger("app"))
     logger.info("Health check endpoint accessed.", extra={"path": "/"})
-    return JSONResponse({"status": "Online"})
+    return ORJSONResponse({"status": "Online"})
 
 
 if __name__ == "__main__":
