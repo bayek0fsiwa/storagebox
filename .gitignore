@@ -20,3 +20,7 @@ logs
 
 # DB File
 storagebox.db
+
+# Static
+uploads
+downloads
