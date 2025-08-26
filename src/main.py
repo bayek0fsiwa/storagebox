@@ -8,7 +8,6 @@ from fastapi.responses import ORJSONResponse
 from src.configs.db import create_db_and_tables
 from src.store.controllers import router
 
-from .security.auth import APIKeyDep
 from .utils.loger import LoggerSetup
 
 
@@ -47,7 +46,7 @@ app.include_router(router=router)
 
 
 @app.get("/", status_code=status.HTTP_200_OK)
-def health_check(api_key: APIKeyDep):
+def health_check():
     logger = getattr(app.state, "logger", logging.getLogger("app"))
     logger.info("Health check endpoint accessed.", extra={"path": "/"})
     return ORJSONResponse({"status": "Online"})
