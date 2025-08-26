@@ -1,0 +1,33 @@
+# Ignore directories created by uv and other package managers
+.venv/
+.tox/
+.mypy_cache/
+.pytest_cache/
+
+# Ignore Python-specific build artifacts and cache files
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+
+# Ignore local development and environment files
+.env
+.env.*
+.vscode/
+.idea/
+*.log
+tmp/
+.coverage.*
+
+# Ignore version control artifacts
+.git/
+.gitignore
+
+# Ignore container-specific files
+Dockerfile
+compose.yaml
+docker-compose.yaml
+
+# Ignore your dependency lockfile (uv.lock) during the build, 
+# as it is explicitly copied by the Dockerfile.
+uv.lock
