@@ -1,7 +1,7 @@
 [project]
 name = "storagebox"
-version = "0.1.0"
-description = "Store your personal files and access from anywhere with a simple otp."
+version = "1.0.0"
+description = "Store files and access from anywhere with a otp."
 readme = "README.md"
 requires-python = ">=3.13"
 dependencies = [
