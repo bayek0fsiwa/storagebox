@@ -1,0 +1,53 @@
+services:
+  app:
+    image: storagebox-v1
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: storagebox-container
+    env_file:
+      - .env
+    ports:
+      - "8000:8000"
+    expose:
+      - 8000
+    command: uvicorn src.main:app --host 0.0.0.0 --port 8000 --reload
+    volumes:
+      - ./src:/code:rw
+    restart: "on-failure"
+    develop:
+      watch:
+        # Rebuilds the image if the dependency files change
+        - action: rebuild
+          path: pyproject.toml
+        - action: rebuild
+          path: uv.lock
+        # Syncs your source code changes into the container without a rebuild
+        - action: sync
+          path: ./src
+          target: /app/src
+
+  # grafana:
+  #   image: grafana/grafana-oss
+  #   # container_name: grafana-container
+  #   restart: no
+  #   ports:
+  #     - "3000:3000"
+  #   expose:
+  #     - 3000
+  #   volumes:
+  #     - grafana-storage:/var/lib/grafana
+
+  # prom-server:
+  #   image: prom/prometheus
+  #   # container_name: prometheus-container
+  #   ports:
+  #     - "9090:9090"
+  #   expose:
+  #     - 9090
+  #   volumes:
+  #     - ./src/prometheus-config.yml:/etc/prometheus/prometheus.yml
+
+# volumes:
+#   storageboxdata:
+#   grafana-storage:
