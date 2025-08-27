@@ -27,7 +27,3 @@ tmp/
 Dockerfile
 compose.yaml
 docker-compose.yaml
-
-# Ignore your dependency lockfile (uv.lock) during the build, 
-# as it is explicitly copied by the Dockerfile.
-uv.lock
