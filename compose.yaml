@@ -90,18 +90,20 @@ services:
       - loki
     restart: unless-stopped
   
-  # prom-server:
-  #   image: prom/prometheus
-  #   container_name: prometheus-container
-  #   ports:
-  #     - "9090:9090"
-  #   expose:
-  #     - 9090
-  #   volumes:
-  #     - ./monitoring-configs:/etc/prometheus/prometheus.yaml:ro
-  #   networks:
-  #     - storagebox-network
-  #   restart: unless-stopped
+  prom-server:
+    image: prom/prometheus
+    container_name: prometheus-container
+    ports:
+      - "9090:9090"
+    expose:
+      - 9090
+    volumes:
+      - ./monitoring-configs:/etc/prometheus/prometheus.yaml:ro
+    networks:
+      - storagebox-network
+    depends_on:
+      - app
+    restart: unless-stopped
 
 volumes:
   loki-data:
