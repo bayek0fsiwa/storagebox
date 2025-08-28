@@ -27,4 +27,5 @@ uploads
 downloads
 
 # Grafana and loki
-grafana
+grafana/
+loki-config.yaml/
