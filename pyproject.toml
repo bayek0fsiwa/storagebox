@@ -11,6 +11,7 @@ dependencies = [
     "apscheduler>=3.11.0",
     "fastapi[standard]>=0.116.1",
     "orjson>=3.11.2",
+    "prometheus-client>=0.22.1",
     "pydantic-settings>=2.10.1",
     "python-json-logger>=3.3.0",
     "python-multipart>=0.0.20",
