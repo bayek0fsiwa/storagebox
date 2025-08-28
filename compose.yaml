@@ -68,7 +68,7 @@ services:
       - "3100:3100"
     volumes:
       # Mount the config directory instead of the single file
-      - ./config:/etc/loki
+      - ./monitoring-configs:/etc/loki
       - loki-data:/loki
     command: -config.file=/etc/loki/loki-config.yaml
     networks:
@@ -80,7 +80,7 @@ services:
     container_name: promtail
     volumes:
       - /var/run/docker.sock:/var/run/docker.sock:ro
-      - ./config:/etc/promtail
+      - ./monitoring-configs:/etc/promtail
       - /var/lib/docker/containers:/var/lib/docker/containers:ro
       - ./logs:/app/logs:ro
     command: -config.file=/etc/promtail/promtail-config.yaml
@@ -98,7 +98,7 @@ services:
   #   expose:
   #     - 9090
   #   volumes:
-  #     - ./src/prometheus-config.yml:/etc/prometheus/prometheus.yml:ro
+  #     - ./monitoring-configs:/etc/prometheus/prometheus.yaml:ro
   #   networks:
   #     - storagebox-network
   #   restart: unless-stopped
