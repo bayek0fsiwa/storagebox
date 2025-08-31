@@ -7,14 +7,30 @@ services:
     container_name: storagebox-container
     env_file:
       - .env
+    environment:
+      - UV_CACHE_DIR=/tmp/uvcache
     ports:
       - "8000:8000"
     expose:
       - 8000
-    command: uvicorn src.main:app --host 0.0.0.0 --port 8000 --reload
+    networks:
+      - storagebox-network
+    # command: uv run uvicorn src.main:app --host 0.0.0.0 --port 8000
+    command: gunicorn src.main:app --bind 0.0.0.0:8000 --worker-class uvicorn.workers.UvicornWorker
     volumes:
-      - ./src:/code:rw
-    restart: "on-failure"
+      - ./src:/app/src:rw
+      - ./logs:/app/logs:rw
+      - /var/lib/docker/containers:/var/lib/docker/containers:ro
+      - /var/log:/var/log:ro
+      - /var/run/docker.sock:/var/run/docker.sock:ro
+    restart: unless-stopped
+    # logging:
+    #   driver: json-file
+    #   options:
+    #     max-size: "10m"
+    #     max-file: "7"
+    logging:
+      driver: "none"
     develop:
       watch:
         # Rebuilds the image if the dependency files change
@@ -27,27 +43,75 @@ services:
           path: ./src
           target: /app/src
 
-  # grafana:
-  #   image: grafana/grafana-oss
-  #   # container_name: grafana-container
-  #   restart: no
-  #   ports:
-  #     - "3000:3000"
-  #   expose:
-  #     - 3000
-  #   volumes:
-  #     - grafana-storage:/var/lib/grafana
+  grafana:
+    image: grafana/grafana:latest
+    container_name: grafana
+    ports:
+      - "3001:3000"
+    environment:
+      - GF_SECURITY_ADMIN_USER=admin
+      - GF_SECURITY_ADMIN_PASSWORD=admin
+      - GF_USERS_ALLOW_SIGN_UP=false
+    volumes:
+      - grafana-data:/var/lib/grafana
+      - ./grafana/provisioning:/etc/grafana/provisioning
+      - ./grafana/dashboards:/var/lib/grafana/dashboards
+    networks:
+      - storagebox-network
+    depends_on:
+      - loki
+    restart: unless-stopped
+  
+  loki:
+    image: grafana/loki
+    container_name: loki
+    ports:
+      - "3100:3100"
+    volumes:
+      # Mount the config directory instead of the single file
+      - ./monitoring-configs:/etc/loki
+      - loki-data:/loki
+    command: -config.file=/etc/loki/loki-config.yaml
+    networks:
+      - storagebox-network
+    restart: unless-stopped
 
-  # prom-server:
-  #   image: prom/prometheus
-  #   # container_name: prometheus-container
-  #   ports:
-  #     - "9090:9090"
-  #   expose:
-  #     - 9090
-  #   volumes:
-  #     - ./src/prometheus-config.yml:/etc/prometheus/prometheus.yml
+  promtail:
+    image: grafana/promtail
+    container_name: promtail
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock:ro
+      - ./monitoring-configs:/etc/promtail
+      - /var/lib/docker/containers:/var/lib/docker/containers:ro
+      - ./logs:/app/logs:ro
+    command: -config.file=/etc/promtail/promtail-config.yaml
+    networks:
+      - storagebox-network
+    depends_on:
+      - loki
+    restart: unless-stopped
+  
+  prom-server:
+    image: prom/prometheus
+    container_name: prometheus-container
+    ports:
+      - "9090:9090"
+    expose:
+      - 9090
+    volumes:
+      - ./monitoring-configs:/etc/prometheus/prometheus.yaml:ro
+    networks:
+      - storagebox-network
+    depends_on:
+      - app
+    restart: unless-stopped
 
-# volumes:
-#   storageboxdata:
-#   grafana-storage:
+volumes:
+  loki-data:
+  storagebox-data:
+  grafana-data:
+  app_logs:
+
+networks:
+  storagebox-network:
+    driver: bridge

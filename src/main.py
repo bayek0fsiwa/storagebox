@@ -4,6 +4,7 @@ from contextlib import asynccontextmanager
 import uvicorn
 from fastapi import FastAPI, status
 from fastapi.responses import ORJSONResponse
+from prometheus_client import make_asgi_app
 
 from src.configs.db import create_db_and_tables
 from src.store.controllers import router
@@ -43,6 +44,8 @@ async def lifespan(app: FastAPI):
 
 app = FastAPI(lifespan=lifespan)
 app.include_router(router=router)
+metrics_app = make_asgi_app()
+app.mount("/metrics", metrics_app)
 
 
 @app.get("/", status_code=status.HTTP_200_OK)

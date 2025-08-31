@@ -25,3 +25,7 @@ storagebox.db
 # Static
 uploads
 downloads
+
+# Grafana and loki
+grafana/
+loki-config.yaml/
