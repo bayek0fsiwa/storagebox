@@ -15,10 +15,12 @@ services:
       - 8000
     networks:
       - storagebox-network
-    # command: uv run uvicorn src.main:app --host 0.0.0.0 --port 8000
-    command: gunicorn src.main:app --bind 0.0.0.0:8000 --worker-class uvicorn.workers.UvicornWorker
+    # Dev
+    command: uv run uvicorn src.main:app --host 0.0.0.0 --port 8000 --reload
+    # Prod
+    # command: gunicorn src.main:app --bind 0.0.0.0:8000 --worker-class uvicorn.workers.UvicornWorker
     volumes:
-      - ./src:/app/src:rw
+      # - ./src:/app/src:rw
       - ./logs:/app/logs:rw
       - /var/lib/docker/containers:/var/lib/docker/containers:ro
       - /var/log:/var/log:ro
@@ -42,7 +44,10 @@ services:
         - action: sync
           path: ./src
           target: /app/src
-
+        # Syncs and restarts the service for test file changes
+        - action: sync+restart
+          path: ./test
+          target: /app/test
   grafana:
     image: grafana/grafana:latest
     container_name: grafana
