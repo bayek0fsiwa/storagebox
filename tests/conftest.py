@@ -32,7 +32,7 @@ def event_loop():
 @pytest.fixture(name="engine", scope="session")
 async def engine_fixture() -> AsyncGenerator[AsyncEngine, None]:
     """Create a test database engine."""
-    engine = AsyncEngine(create_engine(TEST_DATABASE_URL, echo=True))
+    engine = AsyncEngine(create_engine(TEST_DATABASE_URL, echo=False))
     yield engine
     # Cleanup after all tests in the session have run
     await engine.dispose()
