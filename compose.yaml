@@ -22,17 +22,19 @@ services:
     volumes:
       # - ./src:/app/src:rw
       - ./logs:/app/logs:rw
-      - /var/lib/docker/containers:/var/lib/docker/containers:ro
-      - /var/log:/var/log:ro
-      - /var/run/docker.sock:/var/run/docker.sock:ro
+      # - /var/lib/docker/containers:/var/lib/docker/containers:ro
+      # - /var/log:/var/log:ro
+      # - /var/run/docker.sock:/var/run/docker.sock:ro
     restart: unless-stopped
-    # logging:
-    #   driver: json-file
-    #   options:
-    #     max-size: "10m"
-    #     max-file: "7"
+    labels:
+      - logging=storagebox
     logging:
-      driver: "none"
+      driver: json-file
+      options:
+        max-size: "10m"
+        max-file: "7"
+    # logging:
+    #   driver: "none"
     develop:
       watch:
         # Rebuilds the image if the dependency files change
@@ -44,10 +46,41 @@ services:
         - action: sync
           path: ./src
           target: /app/src
-        # Syncs and restarts the service for test file changes
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8000/"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  test:
+    image: python:3.13-slim
+    container_name: pytest_runner
+    volumes:
+      - ./src:/app/src
+      - ./tests:/app/tests
+      - ./pytest.ini:/app/pytest.ini
+    environment:
+      - PYTHONPATH=/app
+    networks:
+      - storagebox-network
+    working_dir: /app
+    env_file:
+      - .env
+    depends_on:
+      - app
+    command: sh -c "pip install -U pytest pytest-asyncio pytest-cov httpx fastapi[standard] python-multipart sqlmodel aiosqlite python-json-logger pydantic-settings orjson aiofiles prometheus-client gunicorn pytest-watch && ptw -- -sv --rootdir=/app"
+    develop:
+      watch:
         - action: sync+restart
-          path: ./test
-          target: /app/test
+          path: ./src
+          target: /app/src
+        - action: sync+restart
+          path: ./tests
+          target: /app/tests
+        - action: sync+restart
+          path: ./pytest.ini
+          target: /app/pytest.ini
+
   grafana:
     image: grafana/grafana:latest
     container_name: grafana
@@ -65,6 +98,7 @@ services:
       - storagebox-network
     depends_on:
       - loki
+      - prom-server
     restart: unless-stopped
   
   loki:
@@ -85,15 +119,18 @@ services:
     image: grafana/promtail
     container_name: promtail
     volumes:
-      - /var/run/docker.sock:/var/run/docker.sock:ro
+      # - /var/run/docker.sock:/var/run/docker.sock:ro
       - ./monitoring-configs:/etc/promtail
-      - /var/lib/docker/containers:/var/lib/docker/containers:ro
+      # - /var/lib/docker/containers:/var/lib/docker/containers:ro
+      # Volume below can be removed as promtail will read from the docker socket
       - ./logs:/app/logs:ro
     command: -config.file=/etc/promtail/promtail-config.yaml
     networks:
       - storagebox-network
     depends_on:
       - loki
+    # labels:
+    #   - logging=storagebox
     restart: unless-stopped
   
   prom-server:
@@ -113,9 +150,9 @@ services:
 
 volumes:
   loki-data:
-  storagebox-data:
   grafana-data:
-  app_logs:
+  # storagebox-data:
+  # app_logs:
 
 networks:
   storagebox-network:
