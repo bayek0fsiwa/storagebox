@@ -67,6 +67,15 @@ services:
         condition: service_healthy
     command: >
       sh -c 'find /app/src /app/tests /app/pytest.ini | entr -r pytest --rootdir=/app'
+  
+  keycloak:
+    image: quay.io/keycloak/keycloak:latest
+    command: "start-dev"
+    environment:
+      - KEYCLOAK_ADMIN=admin
+      - KEYCLOAK_ADMIN_PASSWORD=admin
+    ports:
+      - "8080:8080"
 
   grafana:
     image: grafana/grafana:latest
