@@ -1,6 +1,7 @@
 import logging
 from contextlib import asynccontextmanager
 
+import httpx
 import uvicorn
 from fastapi import FastAPI, status
 from fastapi.responses import ORJSONResponse
@@ -21,6 +22,7 @@ async def lifespan(app: FastAPI):
 
     app.state.logger.info("App starting")
     app.state.logger.info("Initializing database and tables.")
+    app.state.httpx_client = httpx.AsyncClient(timeout=10.0)
     try:
         await create_db_and_tables()
         app.state.logger.info("Database initialized.")
@@ -31,6 +33,12 @@ async def lifespan(app: FastAPI):
         )
         raise
     yield
+    client = getattr(app.state, "httpx_client", None)
+    if client is not None:
+        try:
+            await client.aclose()
+        except Exception:
+            app.state.logger.exception("Failed to close httpx client cleanly.")
     app.state.logger.info("App shutting down. Waiting for logs to be processed...")
     logger_setup = getattr(app.state, "logger_setup_instance", None)
     if logger_setup is not None:
