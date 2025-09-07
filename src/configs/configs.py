@@ -7,6 +7,8 @@ class Settings(BaseSettings):
     DATABASE_URI: str
     API_KEY: str
     KEYCLOAK_SERVER_URL: str
+    KC_ADMIN_CLIENT_ID: str
+    KC_ADMIN_CLIENT_SECRET: str
     KEYCLOAK_REALM: str
     KEYCLOAK_CLIENT_ID: str
     KEYCLOAK_CLIENT_SECRET: str
