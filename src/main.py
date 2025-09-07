@@ -8,7 +8,7 @@ from prometheus_client import make_asgi_app
 
 from src.auth.controllers import router as user_router
 from src.configs.db import create_db_and_tables
-from src.store.controllers import store_router
+from src.store.controllers import router
 
 from .utils.loger import LoggerSetup
 
@@ -44,7 +44,7 @@ async def lifespan(app: FastAPI):
 
 
 app = FastAPI(lifespan=lifespan)
-app.include_router(router=store_router)
+app.include_router(router=router)
 app.include_router(router=user_router)
 metrics_app = make_asgi_app()
 app.mount("/metrics", metrics_app)
